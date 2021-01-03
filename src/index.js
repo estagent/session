@@ -5,7 +5,7 @@ import {mountSession} from './synchronizer'
 import {authenticate, logout} from './authenticator'
 
 export {
-  Session, Events, Request,
+  Session, Events, Request, authenticate, logout,
 }
 
 export const bootSession = (options) => {
