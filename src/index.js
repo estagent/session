@@ -24,6 +24,7 @@ export const bootSession = (options) => {
   return {
     authenticate: authenticate,
     logout: logout,
-    isAuthenticated: Session.isAuthenticated,
+    isAuthenticated: () => Session.isAuthenticated(),
+    user: () => Session.user(),
   }
 }

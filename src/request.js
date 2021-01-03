@@ -36,8 +36,8 @@ const createInstance = () => {
   }
 
   return axios.create({
-    baseURL: config.url,
-    timeout: config.timeout,
+    baseURL: Config.url,
+    timeout: Config.timeout,
     withCredentials: true,
     headers: headers,
   })
