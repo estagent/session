@@ -24,13 +24,6 @@ export const dispatchUserRefreshed = (detail) => {
  * Session events
  */
 
-export const dispatchSessionInitialised = () => {
-  window.dispatchEvent(new Event(Events.SessionInitialized))
-}
-
-export const dispatchSessionCreated = () => {
-  window.dispatchEvent(new Event(Events.SessionCreated))
-}
 
 export const dispatchSessionMounted = (detail) => {
   window.dispatchEvent(new CustomEvent(Events.SessionMounted, {detail: detail}))
@@ -38,10 +31,6 @@ export const dispatchSessionMounted = (detail) => {
 
 export const dispatchSessionRefreshed = (detail) => {
   window.dispatchEvent(new CustomEvent(Events.SessionRefreshed, {detail: detail}))
-}
-
-export const dispatchSessionDestroyed = () => {
-  window.dispatchEvent(new Event(Events.SessionDestroyed))
 }
 
 export const dispatchSessionExpired = () => {
@@ -52,4 +41,18 @@ export const dispatchSessionInvalidated = () => {
   window.dispatchEvent(new Event(Events.SessionInvalidated))
 }
 
+
+/**
+ * #IMPORTANT:
+ * session initialization must be dispatch first! during create and destroy! session not initlied
+ */
+export const dispatchSessionInitialised = () => {
+  window.dispatchEvent(new Event(Events.SessionInitialized))
+}
+export const dispatchSessionCreated = () => {
+  window.addEventListener(Events.SessionInitialized, () => window.dispatchEvent(new Event(Events.SessionCreated)), {once: true})
+}
+export const dispatchSessionDestroyed = () => {
+  window.addEventListener(Events.SessionInitialized, () => window.dispatchEvent(new Event(Events.SessionDestroyed)), {once: true})
+}
 
