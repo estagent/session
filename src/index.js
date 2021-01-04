@@ -14,6 +14,9 @@ export const bootSession = (options = {}) => {
     for (let key of Object.keys(options.request))
       Request[key](options.request[key])
 
+  if (options.hasOwnProperty('refreshInterval'))
+    setRefreshInterval(options.refreshInterval)
+
   window.addEventListener(Events.SessionInitialized, mountSession)
   window.addEventListener(Events.SessionExpired, mountSession)
   window.addEventListener(Events.SessionInvalidated, mountSession)
