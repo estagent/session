@@ -3,6 +3,11 @@ import Token from './token'
 import Request from './request'
 import {dispatchSessionInvalidated, dispatchUserAuthenticated, dispatchUserSignedOut} from './dispacthers'
 
+const Config = {
+  login: 'auth/login',
+  logout: 'auth/logout',
+}
+
 const parseAuthResponse = data => {
 
   if (!data.hasOwnProperty('auth') || data.auth !== true) throw 'auth not defined'
@@ -16,9 +21,9 @@ const parseAuthResponse = data => {
 }
 
 
-export const authenticate = credentials => {
+const authenticate = credentials => {
   return Request
-    .post('auth/login', credentials)
+    .post(Config.login, credentials)
     .then(data => {
       parseAuthResponse(data)
       dispatchUserAuthenticated(data)
@@ -37,9 +42,9 @@ export const authenticate = credentials => {
     })
 }
 
-export const logout = () => {
+const logout = () => {
   return Request
-    .post('auth/logout')
+    .post(Config.logout)
     .then(response => {
       if (response.hasOwnProperty('auth') && response.auth === true) {
         Session.guest() // we will never destroy session.storage manually. to catch exact browser close.
@@ -49,4 +54,24 @@ export const logout = () => {
       }
       throw 'unexpected response'
     })
+}
+
+export default {
+  config(opts) {
+    for (let key of Object.keys(opts)) {
+      switch (key) {
+        case 'login':
+          Config.login = opts.login
+          break
+        case 'logout':
+          Config.logout = opts.logout
+          break
+        default:
+          throw `Init Error: unknown auth config option ${key}`
+      }
+    }
+    return this
+  },
+  authenticate: authenticate,
+  logout: logout,
 }

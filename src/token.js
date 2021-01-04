@@ -3,7 +3,14 @@ import Session from './session'
 let secret
 let csrf
 
-const authKey = '__api__'
+const Config = {
+  path: 'tokens',
+  storage: 'session',
+  storageKey: 'token',
+  chipper: 'AES-256-CBC',
+  secret: 'csrf',
+}
+
 
 /**
  * TODO: api_token will be encrypted with csrf_token in sessionStorage
@@ -24,11 +31,11 @@ const validateExpiry = expiresAt =>
   typeof expiresAt === 'number' && expiresAt > Date.now()
 
 
-const getCredentials = () => Session.get(authKey)
-const saveCredentials = string => Session.set(authKey, string)
+const getCredentials = () => Session.get(Config.storageKey)
+const saveCredentials = string => Session.set(Config.storageKey, string)
 
 const removeToken = () => {
-  Session.remove(authKey)
+  Session.remove(Config.storageKey)
 }
 
 const getSecret = () => {
@@ -80,4 +87,12 @@ export default {
     secret = undefined
     removeToken()
   },
+  config(obj) {
+    for (let key of Object.keys(obj))
+      if (Config.hasOwnProperty(key))
+        Config[key] = obj[key]
+      else throw `unknown token config option (${key})`
+    return this
+  },
+
 }

@@ -1,6 +1,5 @@
 export default {
     UserAuthenticated: 'user-authenticated',
-    UserRefreshed: 'user-refreshed',
     UserSignedOut: 'user-signed-out',
     UserUpdated: 'user-updated',
     UserMounted: 'user-mounted',

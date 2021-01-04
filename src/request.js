@@ -100,4 +100,11 @@ export default {
     Config.withIdentificationTimestamps = value
     return this
   },
+  config(obj) {
+    for (let key of Object.keys(obj))
+      if (Config.hasOwnProperty(key))
+        Config[key] = obj[key]
+      else throw `unknown xhr config option (${key})`
+    return this
+  },
 }

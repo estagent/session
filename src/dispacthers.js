@@ -4,8 +4,8 @@ export const dispatchUserAuthenticated = (detail) => {
   window.dispatchEvent(new CustomEvent(Events.UserAuthenticated, {detail: detail}))
 }
 
-export const dispatchUserSignedOut = (detail) => {
-  window.dispatchEvent(new CustomEvent(Events.UserSignedOut, {detail: detail}))
+export const dispatchUserSignedOut = () => {
+  window.dispatchEvent(new Event(Events.UserSignedOut))
 }
 
 export const dispatchUserMounted = (detail) => {
@@ -14,10 +14,6 @@ export const dispatchUserMounted = (detail) => {
 
 export const dispatchUserUpdated = (detail) => {
   window.dispatchEvent(new CustomEvent(Events.UserUpdated, {detail: detail}))
-}
-
-export const dispatchUserRefreshed = (detail) => {
-  window.dispatchEvent(new CustomEvent(Events.UserRefreshed, {detail: detail}))
 }
 
 /**

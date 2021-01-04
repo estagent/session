@@ -1,21 +1,35 @@
 import Session from './session'
 import Events from './events'
 import Request from './request'
-import {mountSession, startRefresh, stopRefresh, setRefreshInterval} from './synchronizer'
-import {authenticate, logout} from './authenticator'
+import Token from './token'
+import Authenticator from './authenticator'
+import {mountSession, startRefresh, stopRefresh, setRefreshInterval, setRefreshPath} from './synchronizer'
 
 export {
-  Session, Events, Request, authenticate, logout,
+  Session, Events, Request, Authenticator, Token,
 }
 
 export const bootSession = (options = {}) => {
 
-  if (options.hasOwnProperty('request'))
-    for (let key of Object.keys(options.request))
-      Request[key](options.request[key])
+  if (options.hasOwnProperty('xhr')) {
+    Request.config(options.xhr)
+  }
 
-  if (options.hasOwnProperty('refreshInterval'))
-    setRefreshInterval(options.refreshInterval)
+  if (options.hasOwnProperty('auth')) {
+    Authenticator.config(options.auth)
+  }
+
+  if (options.hasOwnProperty('token')) {
+    Token.config(options.token)
+  }
+
+  if (options.hasOwnProperty('sync')) {
+    if (options.sync.hasOwnProperty('interval'))
+      setRefreshInterval(options.sync.interval)
+
+    if (options.sync.hasOwnProperty('path'))
+      setRefreshPath(options.sync.path)
+  }
 
   window.addEventListener(Events.SessionInitialized, mountSession)
   window.addEventListener(Events.SessionExpired, mountSession)
@@ -24,8 +38,8 @@ export const bootSession = (options = {}) => {
   Session.init()
 
   return {
-    authenticate: authenticate,
-    logout: logout,
+    authenticate: () => Authenticator.authenticate,
+    logout: (redirect) => Authenticator.logout(redirect),
     isAuthenticated: () => Session.isAuthenticated(),  // NOTE: this issue App/Session
     setRefreshInterval: setRefreshInterval,
     stopRefresh: stopRefresh,
