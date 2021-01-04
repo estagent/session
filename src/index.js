@@ -24,6 +24,7 @@ export const bootSession = (options = {}) => {
   }
 
   if (options.hasOwnProperty('sync')) {
+
     if (options.sync.hasOwnProperty('interval'))
       setRefreshInterval(options.sync.interval)
 
@@ -34,16 +35,16 @@ export const bootSession = (options = {}) => {
   window.addEventListener(Events.SessionInitialized, mountSession)
   window.addEventListener(Events.SessionExpired, mountSession)
   window.addEventListener(Events.SessionInvalidated, mountSession)
+  window.addEventListener(Events.SessionMounted, () => startRefresh(), {once: true})
 
   Session.init()
-
   return {
-    authenticate: () => Authenticator.authenticate,
-    logout: (redirect) => Authenticator.logout(redirect),
     isAuthenticated: () => Session.isAuthenticated(),  // NOTE: this issue App/Session
+    user: () => Session.user(),  // NOTE: this issue
+    authenticate: Authenticator.authenticate, // anonymous function
+    logout: Authenticator.logout,  //anonymous function
     setRefreshInterval: setRefreshInterval,
     stopRefresh: stopRefresh,
     startRefresh: startRefresh,
-    user: () => Session.user(),  // NOTE: this issue
   }
 }

@@ -17,7 +17,10 @@ const Config = {
 export const setRefreshInterval = (ms) => Config.interval = ms
 export const setRefreshPath = (url) => Config.url = url
 
-export const stopRefresh = () => clearInterval(intervalIdentifier)
+export const stopRefresh = () => {
+  clearInterval(intervalIdentifier)
+  intervalIdentifier = null
+}
 export const startRefresh = (ms) => {
   if (!intervalIdentifier)
     intervalIdentifier = setInterval(refreshSession, ms ?? Config.interval)
@@ -25,7 +28,7 @@ export const startRefresh = (ms) => {
 }
 
 const refreshSession = () => {
-  Request.put(Config.url.concat(Date.now().toString()))
+  Request.put(Config.url.concat('/').concat(Date.now().toString()))
     .then((data) => {
       dispatchSessionRefreshed(data)
       if (data.hasOwnProperty('user')) {
