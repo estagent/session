@@ -1,46 +1,40 @@
 import axios from 'axios'
 import Token from './token'
 import {dispatchSessionExpired} from './dispacthers'
-import {getIdentifier, getIdentifications} from '@revgaming/device'
+import {updateHeadersWithIdentifications} from '@revgaming/identifications'
 
 const Config = {
   url: null,
   timeout: 20000,
+  withCredentials: true,
+  withIdentifier: false,
+  withIdentificationTimestamps: false,
 }
 
-
 const createInstance = () => {
-  const identifier = getIdentifier()
+
   const csrf = Token.csrf
   const authorization = Token.secret
 
   let headers = {
     'X-Requested-With': 'XMLHttpRequest',
   }
-
   if (csrf) {
     headers['X-CSRF-TOKEN'] = csrf
   }
-
   if (authorization) {
     headers['Authorization'] = 'Bearer '.concat(authorization)
   }
-
-  if (identifier) {
-    headers['Device'] = identifier
-    const identifications = getIdentifications()
-    if (identifications) {
-      headers['X-CreatedAt'] = identifications.createdAt
-      headers['X-UpdatedAt'] = identifications.updatedAt
-    }
-  }
-
   return axios.create({
-    baseURL: Config.url,
-    timeout: Config.timeout,
-    withCredentials: true,
-    headers: headers,
-  })
+      baseURL: Config.url,
+      timeout: Config.timeout,
+      withCredentials: Config.withCredentials,
+      headers: updateHeadersWithIdentifications(headers, {
+        identifier: Config.withIdentifier,
+        timestamps: Config.withIdentificationTimestamps,
+      }),
+    },
+  )
 }
 
 const get = path => {
@@ -96,6 +90,14 @@ export default {
   },
   url(url) {
     Config.url = url
+    return this
+  },
+  withIdentifier(value = true) {
+    Config.withIdentifier = value
+    return this
+  },
+  withIdentificationTimestamps(value = true) {
+    Config.withIdentificationTimestamps = value
     return this
   },
 }

@@ -3,7 +3,16 @@ import Token from './token'
 import Session from './session'
 import {dispatchUserMounted, dispatchSessionRefreshed, dispatchSessionMounted, dispatchUserUpdated} from './dispacthers'
 
-let refreshInterval
+let intervalHandler
+let refreshInterval = 20000
+
+export const setRefreshInterval = (ms) => refreshInterval = ms
+export const stopRefresh = () => clearInterval(intervalHandler)
+export const startRefresh = (ms) => {
+  if (!intervalHandler)
+    intervalHandler = setInterval(refreshSession, ms ?? refreshInterval)
+  return intervalHandler
+}
 
 const refreshSession = () => {
   Request.put('session/'.concat(Date.now().toString()))
@@ -12,7 +21,7 @@ const refreshSession = () => {
       if (data.hasOwnProperty('user')) {
         const newUser = data.user
         const user = Session.user()
-        if (user.updatedAt !== newUser.updatedAt) {
+        if (!user || user.updated_at !== newUser.updated_at) {
           Session.authenticated(newUser)
           dispatchUserUpdated({
             old: user,
@@ -34,6 +43,5 @@ export const mountSession = () => {
       Session.authenticated(data.user)
       dispatchUserMounted(data)
     }
-    if (!refreshInterval) refreshInterval = setInterval(refreshSession, 10000)
   })
 }

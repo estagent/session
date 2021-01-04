@@ -1,5 +1,6 @@
 import {dispatchSessionCreated, dispatchSessionDestroyed, dispatchSessionInitialised} from './dispacthers'
 
+let authenticated
 export default {
   createdAt: function() {
     const createdAt = this.get('createdAt')
@@ -37,15 +38,16 @@ export default {
   authenticated: function(user) {
     if (typeof user !== 'object') throw 'invalid user input'
     this.set('auth', true)
-    this.set('user', JSON.stringify(user))
+    // this.set('user', JSON.stringify(user))
+    authenticated = user
   },
   guest: function() {
     this.remove('user')
     this.set('auth', false)
   },
   user: function() {
-    if (this.get('auth') !== true) return null
-    return JSON.parse(this.get('user'))
+    if (this.isAuthenticated)
+      return authenticated
   },
   init: function() {
     if (!this.createdAt()) this.renew()
