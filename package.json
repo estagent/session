@@ -1,6 +1,6 @@
 {
   "name": "@revgaming/session",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "author": "estagent <estagent@gmail.com>",
   "description": "session manager module for global",
   "keywords": [
@@ -12,7 +12,7 @@
   "homepage": "https://github.com/estagent/session",
   "main": "src/index.js",
   "dependencies": {
-    "@revgaming/identifications": "^1.0.5",
+    "@revgaming/identifications": "^1.0.9",
     "axios": "^0.21.1"
   }
 }
