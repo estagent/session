@@ -1,7 +1,7 @@
 import axios from 'axios'
 import Token from './token'
 import {dispatchSessionExpired} from './dispacthers'
-import {updateHeadersWithIdentifications} from '@revgaming/identifications'
+import {updateHeadersWithIdentifications} from '@revgaming/identity'
 
 const Config = {
   url: null,
