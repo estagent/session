@@ -1,7 +1,7 @@
 import axios from 'axios'
 import Token from './token'
-import {dispatchSessionExpired} from './dispacthers'
 import {updateHeadersWithIdentifications} from '@revgaming/identity'
+import {dispatchSessionExpired} from './dispacthers'
 
 const Config = {
   url: null,
@@ -74,8 +74,10 @@ const deleteReq = (path) => {
 
 
 const checkCsrfError = (error) => {
-  if (error.response.status === 419)
+  if (error.response.status === 419) {
+    Token.csrf = null
     dispatchSessionExpired()
+  }
   throw error
 }
 
@@ -105,6 +107,13 @@ export default {
       if (Config.hasOwnProperty(key))
         Config[key] = obj[key]
       else throw `unknown xhr config option (${key})`
+    return this
+  },
+  isMounted: () => !!Token.csrf,
+  mount(data) {
+    if (!data.csrf)
+      throw 'csrf not found'
+    Token.csrf = data.csrf
     return this
   },
 }

@@ -1,5 +1,4 @@
 import Request from './request'
-import Token from './token'
 import Session from './session'
 import {
   dispatchUserMounted,
@@ -7,6 +6,7 @@ import {
   dispatchSessionMounted,
   dispatchUserUpdated,
 } from './dispacthers'
+import Events from './events'
 
 let intervalIdentifier
 const Config = {
@@ -14,14 +14,15 @@ const Config = {
   interval: 20000,
 }
 
-export const setRefreshInterval = (ms) => Config.interval = ms
-export const setRefreshPath = (url) => Config.url = url
+const setRefreshInterval = (ms) => Config.interval = ms
+const setRefreshPath = (url) => Config.url = url
 
 export const stopRefresh = () => {
-  clearInterval(intervalIdentifier)
+  if (intervalIdentifier) clearInterval(intervalIdentifier)
   intervalIdentifier = null
 }
-export const startRefresh = (ms) => {
+
+const startRefresh = (ms) => {
   if (!intervalIdentifier)
     intervalIdentifier = setInterval(refreshSession, ms ?? Config.interval)
   return intervalIdentifier
@@ -45,11 +46,11 @@ const refreshSession = () => {
     })
 }
 
-export const mountSession = () => {
+const mountSession = () => {
   return Request.get(Config.url)
     .then(data => {
       if (!data.hasOwnProperty('csrf') || typeof data.csrf !== 'string') throw 'csrf not found in response'
-      Token.csrf = data.csrf
+      Request.mount(data)
       dispatchSessionMounted(data)
       if (data.hasOwnProperty('auth') && data.auth === true) {
         if (!data.hasOwnProperty('user') || typeof data.user !== 'object') throw 'user not found in response'
@@ -59,4 +60,26 @@ export const mountSession = () => {
     }).catch(err => {
       console.log(err)
     })
+}
+
+const addListeners = () => {
+  window.addEventListener(Events.SessionInitialized, mountSession)
+  window.addEventListener(Events.SessionExpired, () => stopRefresh())
+  window.addEventListener(Events.SessionExpired, mountSession)
+  window.addEventListener(Events.SessionInvalidated, mountSession)
+  window.addEventListener(Events.SessionMounted, () => startRefresh())
+
+  window.addEventListener('online', () => console.log('came online'))
+  window.addEventListener('offline', () => console.log('came offline'))
+
+}
+
+export default {
+  config: function(opts) {
+    if (opts.hasOwnProperty('interval'))
+      setRefreshInterval(opts.interval)
+    if (opts.hasOwnProperty('path'))
+      setRefreshPath(opts.path)
+  },
+  addListeners: addListeners,
 }

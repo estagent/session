@@ -3,7 +3,7 @@ import Events from './events'
 import Request from './request'
 import Token from './token'
 import Authenticator from './authenticator'
-import {mountSession, startRefresh, stopRefresh, setRefreshInterval, setRefreshPath} from './synchronizer'
+import Synchronizer from './synchronizer'
 
 export {
   Session, Events, Request, Authenticator, Token,
@@ -23,28 +23,16 @@ export const bootSession = (options = {}) => {
     Token.config(options.token)
   }
 
-  if (options.hasOwnProperty('sync')) {
+  if (options.hasOwnProperty('sync'))
+    Synchronizer.config(options.sync)
 
-    if (options.sync.hasOwnProperty('interval'))
-      setRefreshInterval(options.sync.interval)
-
-    if (options.sync.hasOwnProperty('path'))
-      setRefreshPath(options.sync.path)
-  }
-
-  window.addEventListener(Events.SessionInitialized, mountSession)
-  window.addEventListener(Events.SessionExpired, mountSession)
-  window.addEventListener(Events.SessionInvalidated, mountSession)
-  window.addEventListener(Events.SessionMounted, () => startRefresh(), {once: true})
-
+  Synchronizer.addListeners()
   Session.init()
+
   return {
     isAuthenticated: () => Session.isAuthenticated(),  // NOTE: this issue App/Session
     user: () => Session.user(),  // NOTE: this issue
     authenticate: Authenticator.authenticate, // anonymous function
     logout: Authenticator.logout,  //anonymous function
-    setRefreshInterval: setRefreshInterval,
-    stopRefresh: stopRefresh,
-    startRefresh: startRefresh,
   }
 }
