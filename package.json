@@ -12,7 +12,11 @@
   "homepage": "https://github.com/estagent/session",
   "main": "src/index.js",
   "dependencies": {
-    "@revgaming/identity": "^1.0.1",
+    "@revgaming/helpers": "^1.0.10",
+    "@revgaming/identity": "1.0.2",
     "axios": "^0.21.1"
+  },
+  "scripts": {
+    "test": "node ./test.js"
   }
 }

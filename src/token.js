@@ -1,7 +1,7 @@
 import Session from './session'
 
 let secret
-let csrf
+
 
 const Config = {
   path: 'tokens',
@@ -11,7 +11,6 @@ const Config = {
   secret: 'csrf',
 }
 
-
 /**
  * TODO: api_token will be encrypted with csrf_token in sessionStorage
  * @param secret
@@ -19,7 +18,6 @@ const Config = {
  */
 const decodeCredentials = secret =>
   typeof secret === 'string' ? JSON.parse(atob(secret)) : null
-
 
 const encodeCredentials = data =>
   typeof data === 'object' ? btoa(JSON.stringify(data)) : null
@@ -29,7 +27,6 @@ const validateSecret = secret =>
 
 const validateExpiry = expiresAt =>
   typeof expiresAt === 'number' && expiresAt > Date.now()
-
 
 const getCredentials = () => Session.get(Config.storageKey)
 const saveCredentials = string => Session.set(Config.storageKey, string)
@@ -53,46 +50,30 @@ const getSecret = () => {
   }
 }
 
-const setToken = (data) => {
-  if (typeof data !== 'object')
-    throw 'input must be object'
+const setToken = data => {
+  if (typeof data !== 'object') throw 'input must be object'
   if (validateSecret(data.secret) !== true) throw 'token is not valid'
   if (validateExpiry(data.expiresAt) !== true) throw 'token expired'
   saveCredentials(encodeCredentials(data))
 }
 
-
 export default {
   get secret() {
-    if (!secret)
-      secret = getSecret()
+    if (!secret) secret = getSecret()
     return secret
   },
   set secret(data) {
-    if (data === null || data === undefined) {
-      this.delete()
-    } else {
-      setToken(data)
-      secret = data.secret
-    }
-  },
-  set csrf(string) {
-    csrf = string
-  },
-  get csrf() {
-    return csrf
+    setToken(data)
+    secret = data.secret
   },
   delete: () => {
-    csrf = undefined
     secret = undefined
     removeToken()
   },
   config(obj) {
     for (let key of Object.keys(obj))
-      if (Config.hasOwnProperty(key))
-        Config[key] = obj[key]
+      if (Config.hasOwnProperty(key)) Config[key] = obj[key]
       else throw `unknown token config option (${key})`
     return this
   },
-
 }

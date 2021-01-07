@@ -1,38 +1,35 @@
 import Session from './session'
 import Events from './events'
-import Request from './request'
+import Xhr from './xhr'
 import Token from './token'
 import Authenticator from './authenticator'
 import Synchronizer from './synchronizer'
 
-export {
-  Session, Events, Request, Authenticator, Token,
-}
+let Request
 
-export const bootSession = (options = {}) => {
+export {Session, Events, Request, Authenticator, Token}
 
-  if (options.hasOwnProperty('xhr')) {
-    Request.config(options.xhr)
-  }
+export const bootSession = function (options = {}) {
 
-  if (options.hasOwnProperty('auth')) {
-    Authenticator.config(options.auth)
-  }
+    Request = new Xhr(options.xhr)
 
-  if (options.hasOwnProperty('token')) {
-    Token.config(options.token)
-  }
+    if (options.hasOwnProperty('auth')) {
+        Authenticator.config(options.auth)
+    }
 
-  if (options.hasOwnProperty('sync'))
-    Synchronizer.config(options.sync)
+    if (options.hasOwnProperty('token')) {
+        Token.config(options.token)
+    }
 
-  Synchronizer.addListeners()
-  Session.init()
+    if (options.hasOwnProperty('sync')) Synchronizer.config(options.sync)
 
-  return {
-    isAuthenticated: () => Session.isAuthenticated(),  // NOTE: this issue App/Session
-    user: () => Session.user(),  // NOTE: this issue
-    authenticate: Authenticator.authenticate, // anonymous function
-    logout: Authenticator.logout,  //anonymous function
-  }
+    Synchronizer.addListeners()
+    Session.init()
+
+    return {
+        isAuthenticated: () => Session.isAuthenticated(), // NOTE: this issue App/Session
+        user: () => Session.user(), // NOTE: this issue
+        authenticate: Authenticator.authenticate, // anonymous function
+        logout: Authenticator.logout, //anonymous function
+    }
 }

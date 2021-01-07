@@ -1,31 +1,16 @@
 import Session from './session'
-import Token from './token'
-import Request from './request'
-import {dispatchSessionInvalidated, dispatchUserAuthenticated, dispatchUserSignedOut} from './dispacthers'
+import {Request} from './index'
+import {dispatchUserAuthenticated, dispatchUserSignedOut} from './dispacthers'
 
 const Config = {
   login: 'auth/login',
   logout: 'auth/logout',
 }
 
-const parseAuthResponse = data => {
-
-  if (!data.hasOwnProperty('auth') || data.auth !== true) throw 'auth not defined'
-  if (!data.hasOwnProperty('user') || typeof data.user !== 'object') throw 'user not found in response'
-  if (!data.hasOwnProperty('token') || typeof data.token !== 'object') throw 'token not found in response'
-  if (!data.hasOwnProperty('csrf') || typeof data.csrf !== 'string') throw 'csrf not found in response'
-
-  Session.authenticated(data.user)
-  Token.csrf = data.csrf
-  Token.secret = data.token
-}
-
-
 const authenticate = credentials => {
-  return Request
-    .post(Config.login, credentials)
+  return Request.post(Config.login, credentials)
     .then(data => {
-      parseAuthResponse(data)
+      Session.authenticate(data)
       dispatchUserAuthenticated(data)
       return data.user
     })
@@ -34,7 +19,7 @@ const authenticate = credentials => {
         if (error.response && error.response.data) {
           const data = error.response.data
           if (data.auth === true) {
-            dispatchSessionInvalidated()
+            Session.invalidate()
           }
         }
       }
@@ -43,17 +28,14 @@ const authenticate = credentials => {
 }
 
 const logout = () => {
-  return Request
-    .post(Config.logout)
-    .then(response => {
-      if (response.hasOwnProperty('auth') && response.auth === true) {
-        Session.guest() // we will never destroy session.storage manually. to catch exact browser close.
-        Token.delete()
-        dispatchUserSignedOut()
-        return true
-      }
-      throw 'unexpected response'
-    })
+  return Request.post(Config.logout).then(response => {
+    if (response.hasOwnProperty('auth') && response.auth === true) {
+      Session.guest() // we will never destroy session.storage manually. to catch exact browser close.
+      dispatchUserSignedOut()
+      return true
+    }
+    throw 'unexpected response'
+  })
 }
 
 export default {
