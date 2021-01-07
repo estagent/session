@@ -1,6 +1,6 @@
 {
   "name": "@revgaming/session",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "author": "estagent <estagent@gmail.com>",
   "description": "session manager module for global",
   "keywords": [
