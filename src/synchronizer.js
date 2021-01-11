@@ -24,22 +24,19 @@ const startRefresh = ms => {
 }
 
 const refreshSession = () => {
-  Request.put(Config.url.concat('/').concat(Date.now().toString())).then(
-    data => {
-      dispatchSessionRefreshed(data)
-      if (data.hasOwnProperty('user')) {
-        const newUser = data.user
-        const user = Session.user()
-        if (!user || user.updated_at !== newUser.updated_at) {
-          Session.authenticate(newUser)
-          dispatchUserUpdated({
-            old: user,
-            user: newUser,
-          })
-        }
+  Request.put(Config.url.concat('/').concat(Date.now().toString())).then(data => {
+    if (data.hasOwnProperty('user')) {
+      const newUser = data.user
+      const user = Session.user()
+      if (!user || user.updated_at !== newUser.updated_at) {
+        Session.authenticate(newUser)
+        dispatchUserUpdated({
+          old: user,
+          user: newUser,
+        })
       }
-    },
-  )
+    } else dispatchSessionRefreshed(data)
+  })
 }
 
 const mountSession = () => {
@@ -56,13 +53,10 @@ const addListeners = () => {
   window.addEventListener(Events.SessionInvalidated, mountSession)
   window.addEventListener(Events.SessionDestroyed, () => stopRefresh())
   window.addEventListener(Events.SessionMounted, () => startRefresh())
-
-  // window.addEventListener('online', () => console.log('came online'))
-  // window.addEventListener('offline', () => console.log('came offline'))
 }
 
 export default {
-  config: function (opts) {
+  config: function(opts) {
     if (opts.hasOwnProperty('interval')) setRefreshInterval(opts.interval)
     if (opts.hasOwnProperty('path')) setRefreshPath(opts.path)
   },

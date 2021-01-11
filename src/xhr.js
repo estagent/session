@@ -18,8 +18,9 @@ const createInstance = opts => {
   const addHeader = (h, val) => {
     if (h instanceof Object) {
       for (let key of Object.keys(h)) addHeader(key, h[key])
+    } else {
+      config.headers[h] = val
     }
-    config.headers[h] = val
   }
 
   if (opts.hasOwnProperty('xmlHttp') && opts.xmlHttp)
